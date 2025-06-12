@@ -1,0 +1,269 @@
+{
+  "name": "Trails",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0ba58334-4c01-4a33-8268-bab60130e88f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Role: You are a smart, weather-aware trail running assistant. You help the user decide whether to go for a trail run today and recommend the best trail, considering the calendar, weather, and trail info. You must send the result via email.\n\nTools:\n- checkCalendar: Returns today's events from the calendar.\n- getWeather: Returns current weather in Hyderabad, India (temperature and sky condition).\n- getHikeList: Returns trail options. Each includes: Name, Distance (mi), Elevation Gain (ft), Time (min), Shade (\"Shady\", \"Some Shade\", or \"Exposed\").\n- sendMessage: Use this to send the final decision via email. This is your only output method.\n\nInstructions:\n1. Use checkCalendar to retrieve today’s events.\n2. Check if any event title contains the phrase \"Trail Run\" (case-insensitive). If not found:\n    - Send this message using sendMessage:\n    ```json\n    {\n      \"Subject\": \"No Trail Run Scheduled\",\n      \"Message\": \"You don’t have a trail run scheduled today. Let me know when it’s go time!\"\n    }\n    ```\n    - Then stop.\n3. If a Trail Run is scheduled:\n    - Get the current weather using getWeather.\n    - Get the trail list using getHikeList.\n    - Based on weather, suggest a suitable trail (e.g., choose shady trails if it's hot).\n    - Send this message using sendMessage:\n    ```json\n    {\n      \"Subject\": \"Trail Run Recommendation\",\n      \"Message\": \"You're scheduled for a trail run today! The weather in Hyderabad is {temperature}°F with {sky}. I recommend the \\\"{Trail Name}\\\" trail — it's {distance} miles, takes around {time} mins, and has {shade}. Have a great run!\"\n    }\n    ```\n\nBe concise, friendly, and clear. Do not mention internal tool steps in the email. Only use sendMessage for the final output.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "7e52ab84-7cd2-4a3b-ac26-f39a6176ee3a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "trail-run-session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        280,
+        220
+      ],
+      "id": "ffa3b3b4-53c2-43ee-bad2-211246489719",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        220
+      ],
+      "id": "fe6e14d1-c4f0-4a0b-a18f-aa98e7b3bfd8",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "REDACTED",
+          "name": "REDACTED"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "format": "imperial",
+        "cityName": "Hyderabad, IN"
+      },
+      "type": "n8n-nodes-base.openWeatherMapTool",
+      "typeVersion": 1,
+      "position": [
+        560,
+        220
+      ],
+      "id": "caf1e4c1-7e56-4c01-8126-845a0c62f898",
+      "name": "getWeather",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "REDACTED",
+          "name": "REDACTED "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1vp0WjqGgoVjNN-crVfPGW5eEJ0CTjhsN6Rgnm45r6RM",
+          "mode": "list",
+          "cachedResultName": "trails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vp0WjqGgoVjNN-crVfPGW5eEJ0CTjhsN6Rgnm45r6RM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1862830989,
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vp0WjqGgoVjNN-crVfPGW5eEJ0CTjhsN6Rgnm45r6RM/edit#gid=1862830989"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        680,
+        220
+      ],
+      "id": "2dcff307-dda0-463b-881f-81c36c8bbb6d",
+      "name": "getHikeList",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REDACTED",
+          "name": "REDACTED"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "REDACTED@gmail.com",
+          "mode": "list",
+          "cachedResultName": "REDACTED@gmail.com"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        420,
+        220
+      ],
+      "id": "e0a8dedb-bed9-4636-a3a7-a5ad0c491888",
+      "name": "checkCalendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REDACTED",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "REDACTED@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        220
+      ],
+      "id": "832af3ff-eac0-4f3e-ad72-35eb81253470",
+      "name": "sendMessage",
+      "webhookId": "2a5caadb-2448-4a70-9608-e7e492502d3a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REDACTED",
+          "name": "Gmail accountaiagentsgmail"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getWeather": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getHikeList": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkCalendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendMessage": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ef56a58e-3426-410f-836d-c53503846f86",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6c5d8fbbe4bb3e45566bb078ed90b34486facbbca21d6c78a3793dd0afb384a2"
+  },
+  "id": "7Dc65eTkMnEAh3On",
+  "tags": []
+}
