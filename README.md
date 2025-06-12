@@ -1,6 +1,8 @@
 # AI Trail Run Agent 🏃‍♂️☁️ (n8n)
 
 ![Workflow Screenshot](workflow.png)
+ **Output** 
+![Workflow Screenshot](output.png)
 
 **AI-Powered Trail Run Assistant Built with n8n Orchestration**  
 📅 **June 2025**
